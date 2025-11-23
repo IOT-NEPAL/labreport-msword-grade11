@@ -1,0 +1,796 @@
+import os
+
+# Configuration
+FONT_FAMILY = "'Times New Roman', serif"
+FONT_SIZE = "16pt"
+OUTPUT_FILE = "lab_report.html"
+
+# ... (imports and config)
+
+# HTML Header
+html_content = f"""
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lab Report - Isha Dahal</title>
+<style>
+    @page {{
+        size: A4;
+        margin: 0; /* Zero margins for full control */
+        mso-page-orientation: portrait;
+        mso-header: header;
+        mso-footer: footer;
+    }}
+    body {{
+        font-family: {FONT_FAMILY};
+        font-size: {FONT_SIZE};
+        line-height: 1.4; /* Slightly tighter line height */
+        color: #000;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+    }}
+    .page-container {{
+        width: 210mm;
+        min-height: 297mm;
+        padding: 0.75in 0.75in 1.25in 0.75in; /* Adjusted padding */
+        margin: 10mm auto;
+        background: white;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        position: relative;
+        box-sizing: border-box;
+        overflow: hidden; /* Prevent content from spilling out */
+    }}
+    @media print {{
+        body {{
+            background: white;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }}
+        .page-container {{
+            width: 210mm; /* Force A4 width */
+            min-height: 297mm; /* Force A4 height */
+            margin: 0;
+            padding: 0.75in 0.75in 1.25in 0.75in; /* Match screen padding exactly */
+            box-shadow: none;
+            page-break-after: always;
+            overflow: visible;
+            position: relative; /* Ensure footer is relative to this page */
+        }}
+        .no-print {{
+            display: none !important;
+        }}
+        .footer {{
+            position: absolute; /* Position relative to the page container */
+            bottom: 0.5in; /* Position from bottom of container */
+            left: 0;
+            width: calc(100% - 1.5in); /* Match screen width calculation */
+            margin: 0 0.75in; /* Center it with margins */
+            height: auto;
+            background: transparent;
+            border-top: 1px solid black;
+            text-align: center;
+            z-index: 1000;
+            padding-top: 5px;
+        }}
+        .cover-page {{
+            height: 100%;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }}
+    }}
+    h1, h2, h3 {{
+        text-align: center;
+        text-decoration: underline;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }}
+    table {{
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+        table-layout: fixed; /* Ensure table fits width */
+        word-wrap: break-word; /* Wrap long words */
+    }}
+    th, td {{
+        border: 1px solid black;
+        padding: 8px; /* Reduced padding */
+        text-align: left;
+        vertical-align: top;
+        font-size: 14pt; /* Slightly smaller font for table content to fit */
+    }}
+    .footer {{
+        position: absolute;
+        bottom: 0.5in;
+        left: 0;
+        right: 0;
+        width: calc(100% - 1.5in); /* Adjusted for new margins */
+        margin: 0 auto;
+        text-align: center;
+        font-size: 12pt;
+        border-top: 1px solid black;
+        padding-top: 5px;
+    }}
+    .cover-page {{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        height: 100%;
+        min-height: 230mm; /* Reduced to prevent overflow with new padding */
+    }}
+    .cover-title {{
+        font-size: 36pt;
+        font-weight: bold;
+        margin-bottom: 20px;
+        text-decoration: none;
+    }}
+    .cover-subtitle {{
+        font-size: 24pt;
+        margin-bottom: 100px;
+    }}
+    .cover-details {{
+        font-size: 18pt;
+        line-height: 2;
+    }}
+    .column-container {{
+        column-count: 2;
+        column-gap: 40px;
+        text-align: justify;
+    }}
+    .drop-cap {{
+        float: left;
+        font-size: 3.5em;
+        line-height: 0.8;
+        margin-right: 8px;
+        font-weight: bold;
+    }}
+    .cv-header {{
+        text-align: center;
+        margin-bottom: 30px;
+    }}
+    .cv-section {{
+        margin-bottom: 20px;
+    }}
+    .cv-section-title {{
+        font-weight: bold;
+        text-transform: uppercase;
+        border-bottom: 2px solid black;
+        margin-bottom: 10px;
+    }}
+    /* Button Style */
+    .print-btn {{
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 30px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        z-index: 1000;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }}
+    .print-btn:hover {{
+        background-color: #0056b3;
+    }}
+</style>
+<script>
+    function downloadPDF() {{
+        alert("IMPORTANT PRINT INSTRUCTIONS:\\n\\n1. In the print window, look for 'More settings'.\\n2. UNCHECK 'Headers and footers'.\\n   (This removes the file path and date from the page)\\n3. Ensure Margins are set to 'Default'.\\n\\nClick OK to proceed.");
+        window.print();
+    }}
+</script>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="downloadPDF()">Download / Save as PDF</button>
+
+"""
+
+# ------------------------------------------------------------------
+# COVER PAGE
+# ------------------------------------------------------------------
+html_content += """
+<div class="page-container">
+    <div class="cover-page">
+        <div class="cover-title">LAB REPORT</div>
+        <div class="cover-subtitle">Microsoft Word Processing</div>
+        
+        <div class="cover-details">
+            <p><strong>Submitted By:</strong></p>
+            <p>Name: Isha Dahal</p>
+            <p>Class: 11</p>
+            <p>Section: G1</p>
+            <p>Stream: Management</p>
+        </div>
+    </div>
+</div>
+"""
+
+# ------------------------------------------------------------------
+# THEORY SECTION (Q1-Q5)
+# ------------------------------------------------------------------
+html_content += """
+<div class="page-container">
+    <h1>Theory Section</h1>
+    <!-- ... (rest of theory content) ... -->
+    <p><strong>Definition:</strong> Word processing software is a specialized computer program that provides for input, editing, formatting, and output of text, often with some additional features. It turns a computer into a sophisticated typewriter that allows users to create professional-looking documents efficiently.</p>
+    <p><strong>Features:</strong></p>
+    <ul>
+        <li><strong>Creation and Editing:</strong> Create, edit, save, and print documents. Users can easily insert, delete, and rearrange text.</li>
+        <li><strong>Formatting:</strong> Format text, such as font type, size, color, bolding, underlining, or italicizing. Paragraph formatting includes alignment, indentation, and line spacing.</li>
+        <li><strong>Graphics and Objects:</strong> Insert elements from other software, such as illustrations, photographs, charts, and shapes.</li>
+        <li><strong>Tables:</strong> Create and edit tables to organize data in rows and columns.</li>
+        <li><strong>Tools:</strong> Spell check, grammar check, thesaurus, and word count to ensure accuracy.</li>
+        <li><strong>Mail Merge:</strong> Generate mass mailings by combining a standard document with a data source.</li>
+    </ul>
+    <p><strong>Uses:</strong> Creating business letters, resumes, reports, memos, newsletters, academic papers, and other text-based documents.</p>
+</div>
+
+<div class="page-container">
+    <h2>Q2. Mail Merge</h2>
+    <p><strong>Definition:</strong> Mail Merge is a powerful feature that incorporates data from both Microsoft Word and Microsoft Excel (or other data sources) and allows you to create multiple documents at once, such as letters, labels, or envelopes, saving you the time and effort of retyping the same document for different recipients.</p>
+    <p><strong>Components:</strong></p>
+    <ol>
+        <li><strong>Main Document:</strong> The document that contains the text and graphics that stay the same for each version of the merged document (e.g., the body of the letter, the letterhead).</li>
+        <li><strong>Data Source:</strong> A file that contains the information to be merged into a document. For example, the names, addresses, and other personal details of the recipients. This can be an Excel spreadsheet, an Outlook contact list, or a database.</li>
+        <li><strong>Merged Document:</strong> The resulting document that contains the combination of the main document and the data source. This is the final output that is printed or emailed.</li>
+    </ol>
+</div>
+
+<div class="page-container">
+    <h2>Q3. Definitions</h2>
+    <ul>
+        <li><strong>Format Painter:</strong> A tool that copies formatting from one piece of text or object and applies it to another. It is useful for maintaining consistency in styles across a document.</li>
+        <li><strong>Header:</strong> Text or graphics that appear at the top of every page of a document. It is often used for page numbers, document titles, or dates.</li>
+        <li><strong>Footer:</strong> Text or graphics that appear at the bottom of every page of a document. Like headers, footers are used for page numbering, author names, or file paths.</li>
+        <li><strong>Endnote:</strong> A note printed at the end of a document or section of a book. It is used to cite sources or provide additional context without cluttering the main text.</li>
+        <li><strong>Footnote:</strong> A note printed at the bottom of the page on which the reference occurs. It serves a similar purpose to endnotes but is more immediately accessible to the reader.</li>
+    </ul>
+    </ul>
+</div>
+
+<div class="page-container">
+    <h2>Q4. Definitions</h2>
+    <ul>
+        <li><strong>Table:</strong> A grid of cells arranged in rows and columns. Tables are used to present data in a structured and organized manner.</li>
+        <li><strong>Word Art:</strong> A text styling utility that allows users to create stylized text with various effects such as shadows, outlines, colors, and gradients. It is often used for headings or decorative text.</li>
+        <li><strong>Drop Cap:</strong> A large capital letter at the beginning of a text block that has the depth of two or more lines of regular text. It is a decorative element often seen in books and newspapers.</li>
+        <li><strong>Watermark:</strong> A faint design (text or image) made in some paper during manufacture, which is visible when held against the light. In Word, it is a faint image or text placed behind the document content to indicate status (e.g., "Confidential", "Draft").</li>
+        <li><strong>Bookmark:</strong> A specific location or selection of text that you name and identify for future reference. It allows you to quickly jump to a specific point in a long document.</li>
+    </ul>
+</div>
+
+<div class="page-container">
+    <h2>Q5. Shortcut Keys (Ctrl+A to Ctrl+Z)</h2>
+    <table>
+        <tr><th>Key</th><th>Function</th><th>Key</th><th>Function</th></tr>
+        <tr><td>CTRL+A</td><td>Select All content</td><td>CTRL+N</td><td>Open a New Document</td></tr>
+        <tr><td>CTRL+B</td><td>Apply Bold formatting</td><td>CTRL+O</td><td>Open an existing Document</td></tr>
+        <tr><td>CTRL+C</td><td>Copy selected text</td><td>CTRL+P</td><td>Open the Print dialog</td></tr>
+        <tr><td>CTRL+D</td><td>Open the Font Dialog</td><td>CTRL+Q</td><td>Remove Paragraph Formatting</td></tr>
+        <tr><td>CTRL+E</td><td>Center Align text</td><td>CTRL+R</td><td>Right Align text</td></tr>
+        <tr><td>CTRL+F</td><td>Open Find box</td><td>CTRL+S</td><td>Save the document</td></tr>
+        <tr><td>CTRL+G</td><td>Go To specific page</td><td>CTRL+T</td><td>Create a Hanging Indent</td></tr>
+        <tr><td>CTRL+H</td><td>Open Replace box</td><td>CTRL+U</td><td>Apply Underline formatting</td></tr>
+        <tr><td>CTRL+I</td><td>Apply Italic formatting</td><td>CTRL+V</td><td>Paste copied content</td></tr>
+        <tr><td>CTRL+J</td><td>Justify Align text</td><td>CTRL+W</td><td>Close the current Document</td></tr>
+        <tr><td>CTRL+K</td><td>Insert a Hyperlink</td><td>CTRL+X</td><td>Cut selected text</td></tr>
+        <tr><td>CTRL+L</td><td>Left Align text</td><td>CTRL+Y</td><td>Redo the last action</td></tr>
+        <tr><td>CTRL+M</td><td>Indent the Paragraph</td><td>CTRL+Z</td><td>Undo the last action</td></tr>
+    </table>
+</div>
+
+<!-- INDEX PAGE -->
+<div class="page-container">
+    <h1>Index of Lab Work</h1>
+    <table style="width: 100%; border: none;">
+        <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid black; width: 10%;">S.N.</th>
+            <th style="border: 1px solid black; width: 70%;">Topic</th>
+            <th style="border: 1px solid black; width: 20%;">Page Count</th>
+        </tr>
+        <tr><td style="border: 1px solid black; text-align: center;">1</td><td style="border: 1px solid black;">Margin – right, left, center and justified</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">2</td><td style="border: 1px solid black;">Text formatting – bold, italics, underline</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">3</td><td style="border: 1px solid black;">Newspaper column – columns and drop cap</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">4</td><td style="border: 1px solid black;">Tables examples</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">5</td><td style="border: 1px solid black;">Header, footer, page number, endnote and footnote</td><td style="border: 1px solid black; text-align: center;">2</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">6</td><td style="border: 1px solid black;">Watermark text</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">7</td><td style="border: 1px solid black;">Watermark image</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">8</td><td style="border: 1px solid black;">Shapes, word art and charts, smart art</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">9</td><td style="border: 1px solid black;">Equations</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">10</td><td style="border: 1px solid black;">Mail merge</td><td style="border: 1px solid black; text-align: center;">6</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">11</td><td style="border: 1px solid black;">CVs</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">12</td><td style="border: 1px solid black;">Calendar</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">13</td><td style="border: 1px solid black;">Bullets and numbering</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr><td style="border: 1px solid black; text-align: center;">14</td><td style="border: 1px solid black;">Nested bullets and numbering</td><td style="border: 1px solid black; text-align: center;">1</td></tr>
+        <tr style="font-weight: bold; background-color: #e0e0e0;"><td colspan="2" style="border: 1px solid black; text-align: right; padding-right: 20px;">Total Pages</td><td style="border: 1px solid black; text-align: center;">20</td></tr>
+    </table>
+</div>
+"""
+
+# ------------------------------------------------------------------
+# LAB REPORT PRACTICAL SECTION (Topics 1-14)
+# ------------------------------------------------------------------
+
+def add_page(title, content, footer_text="Name: Isha Dahal | Stream: Management | Class: 11 | Section: G1"):
+    return f"""
+    <div class="page-container">
+        <h2 style="text-align: center; margin-bottom: 40px;">{title}</h2>
+        {content}
+        <div class="footer">
+            {footer_text} | Page: <span class="page-number"></span>
+        </div>
+    </div>
+    """
+
+# 1. Margins
+content_1 = """
+<div style="border: 1px solid black; padding: 20px; margin-bottom: 20px;">
+    <p style="text-align: left;"><strong>Left Aligned Text:</strong> This text is aligned to the left margin. It is the default alignment in Word.</p>
+    <p style="text-align: center;"><strong>Center Aligned Text:</strong> This text is centered between the margins. Often used for titles.</p>
+    <p style="text-align: right;"><strong>Right Aligned Text:</strong> This text is aligned to the right margin. Used for dates or signatures.</p>
+    <p style="text-align: justify;"><strong>Justified Text:</strong> This text is aligned to both the left and right margins, adding extra space between words as necessary. This creates a clean look on both sides of the page, commonly used in newspapers and books.</p>
+</div>
+<p><strong>Margins:</strong> Margins are the blank space around the edges of the page. Standard margins are usually 1 inch on all sides.</p>
+"""
+html_content += add_page("1. Margins & Alignment", content_1)
+
+# 2. Text Formatting
+content_2 = """
+<p>This page demonstrates various text formatting options available in Microsoft Word.</p>
+<ul>
+    <li><strong>Bold:</strong> <b>This text is bold.</b> It is used to emphasize important words.</li>
+    <li><strong>Italic:</strong> <i>This text is italicized.</i> It is often used for book titles or foreign words.</li>
+    <li><strong>Underline:</strong> <u>This text is underlined.</u> It draws attention to the text.</li>
+    <li><strong>Strikethrough:</strong> <strike>This text has a strikethrough.</strike> Used to indicate deleted text.</li>
+    <li><strong>Subscript:</strong> H<sub>2</sub>O (The '2' is subscript).</li>
+    <li><strong>Superscript:</strong> E = mc<sup>2</sup> (The '2' is superscript).</li>
+    <li><strong>Highlight:</strong> <span style="background-color: yellow;">This text is highlighted.</span></li>
+    <li><strong>Font Color:</strong> <span style="color: red;">This text is red.</span> <span style="color: blue;">This text is blue.</span></li>
+</ul>
+"""
+html_content += add_page("2. Text Formatting", content_2)
+
+# 3. Newspaper Column
+content_3 = """
+<div class="column-container">
+    <p><span class="drop-cap">L</span>orem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+</div>
+<p style="margin-top: 20px;"><strong>Note:</strong> The text above demonstrates a 2-column layout with a Drop Cap on the first letter 'L'.</p>
+"""
+html_content += add_page("3. Newspaper Columns & Drop Cap", content_3)
+
+# 4. Tables
+content_4 = """
+<h3>Student Marks Sheet</h3>
+<table>
+    <tr style="background-color: #ddd;">
+        <th>Roll No</th>
+        <th>Name</th>
+        <th>Math</th>
+        <th>Science</th>
+        <th>English</th>
+        <th>Total</th>
+    </tr>
+    <tr><td>1</td><td>Aarav</td><td>85</td><td>90</td><td>88</td><td>263</td></tr>
+    <tr><td>2</td><td>Binita</td><td>78</td><td>82</td><td>80</td><td>240</td></tr>
+    <tr><td>3</td><td>Chirag</td><td>92</td><td>95</td><td>90</td><td>277</td></tr>
+    <tr><td>4</td><td>Diya</td><td>88</td><td>85</td><td>92</td><td>265</td></tr>
+    <tr><td>5</td><td>Eshan</td><td>75</td><td>70</td><td>78</td><td>223</td></tr>
+</table>
+<p>Tables are used to organize data in rows and columns, making it easier to read and analyze.</p>
+"""
+html_content += add_page("4. Tables Example", content_4)
+
+# 5. Header, Footer, Page Number (Page 1 of 2)
+content_5a = """
+<p>This section demonstrates the use of Headers, Footers, and Page Numbers.</p>
+<p><strong>Header:</strong> The header of this document (if enabled in print) typically contains the document title or chapter name.</p>
+<p><strong>Footer:</strong> The footer of this page contains the student's details: "Name: Isha Dahal | Stream: Management...".</p>
+<p><strong>Page Number:</strong> The page number is automatically calculated and displayed in the footer.</p>
+<div style="margin-top: 50px; border-top: 1px solid black; padding-top: 10px;">
+    <p><strong>Footnote Example:</strong> This sentence has a footnote reference<sup>1</sup>.</p>
+    <p style="font-size: 0.9em;"><em>1. This is the footnote text appearing at the bottom of the content area.</em></p>
+</div>
+"""
+html_content += add_page("5. Header, Footer & Footnote Demonstration", content_5a)
+
+# 5. Header, Footer, Page Number (Page 2 of 2)
+content_5b = """
+<p><strong>Endnote Example:</strong></p>
+<p>Endnotes are similar to footnotes but typically appear at the end of the document or section. In this lab report, we are simulating the concept.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.<sup>[i]</sup></p>
+<br>
+<hr>
+<p><strong>References (Endnotes):</strong></p>
+<p>[i] Standard placeholder text used in publishing and graphic design.</p>
+"""
+html_content += add_page("5. Endnote Demonstration", content_5b)
+
+# 6. Watermark Text
+content_6 = """
+<div style="position: relative; height: 500px; border: 1px solid #ccc; padding: 20px; overflow: hidden;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 80pt; color: rgba(192, 192, 192, 0.5); font-weight: bold; z-index: 0;">
+        CONFIDENTIAL
+    </div>
+    <div style="position: relative; z-index: 1;">
+        <h3>Project Proposal</h3>
+        <p>This document contains confidential information regarding the upcoming project launch. Unauthorized distribution is strictly prohibited.</p>
+        <p>The watermark "CONFIDENTIAL" behind this text indicates the status of the document.</p>
+    </div>
+</div>
+"""
+html_content += add_page("6. Watermark (Text)", content_6)
+
+# 7. Watermark Image
+content_7 = """
+<div style="position: relative; height: 500px; border: 1px solid #ccc; padding: 20px; overflow: hidden;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.2; z-index: 0;">
+        <!-- Placeholder for an image watermark representation -->
+        <svg width="300" height="300" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="none" />
+            <text x="50" y="55" text-anchor="middle" font-size="20">LOGO</text>
+        </svg>
+    </div>
+    <div style="position: relative; z-index: 1;">
+        <h3>Company Report</h3>
+        <p>This page demonstrates an image watermark. In a real Word document, a company logo or specific image would be placed in the background.</p>
+        <p>The faint circle/logo behind this text represents the image watermark.</p>
+    </div>
+</div>
+"""
+html_content += add_page("7. Watermark (Image)", content_7)
+
+# 8. Shapes, Word Art, Charts
+content_8 = """
+<h3>Shapes</h3>
+<div style="display: flex; justify-content: space-around; margin-bottom: 30px;">
+    <div style="width: 100px; height: 100px; background-color: blue;"></div>
+    <div style="width: 100px; height: 100px; background-color: red; border-radius: 50%;"></div>
+    <div style="width: 0; height: 0; border-left: 50px solid transparent; border-right: 50px solid transparent; border-bottom: 100px solid green;"></div>
+</div>
+
+<h3>Word Art</h3>
+<h1 style="font-family: 'Arial Black', sans-serif; color: white; -webkit-text-stroke: 2px blue; text-shadow: 3px 3px 0px #aaa; text-align: center;">CREATIVE TEXT</h1>
+
+<h3>Smart Art (Hierarchy)</h3>
+<div style="display: flex; flex-direction: column; align-items: center;">
+    <div style="border: 1px solid black; padding: 10px; width: 100px; text-align: center;">Manager</div>
+    <div style="height: 20px; border-left: 1px solid black;"></div>
+    <div style="display: flex; gap: 20px;">
+        <div style="border: 1px solid black; padding: 10px; width: 80px; text-align: center;">Staff A</div>
+        <div style="border: 1px solid black; padding: 10px; width: 80px; text-align: center;">Staff B</div>
+    </div>
+</div>
+"""
+html_content += add_page("8. Shapes, Word Art & Smart Art", content_8)
+
+# 9. Equations
+content_9 = """
+<p>Microsoft Word allows inserting complex mathematical equations.</p>
+<div style="font-family: 'Cambria Math', serif; font-size: 20pt; text-align: center; margin: 30px 0;">
+    <p>1. Area of Circle: A = &pi;r<sup>2</sup></p>
+    <p>2. Quadratic Formula: x = <span style="display: inline-block; vertical-align: middle; text-align: center;">
+        <span style="border-bottom: 1px solid black;">-b &plusmn; &radic;(b<sup>2</sup> - 4ac)</span><br>
+        <span>2a</span>
+    </span></p>
+    <p>3. Pythagorean Theorem: a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></p>
+    <p>4. Trigonometry: sin<sup>2</sup>&theta; + cos<sup>2</sup>&theta; = 1</p>
+</div>
+"""
+html_content += add_page("9. Equations", content_9)
+
+# 10. Mail Merge (6 Pages)
+# Page 1: Concept
+content_10a = """
+<h3>What is Mail Merge?</h3>
+<p>Mail Merge is a tool that allows you to create multiple letters, labels, envelopes, name tags, and more using information stored in a list, database, or spreadsheet.</p>
+<p><strong>Process:</strong></p>
+<ol>
+    <li>Create the Main Document (e.g., a letter).</li>
+    <li>Create a Data Source (e.g., Excel list of names).</li>
+    <li>Merge the Data Source with the Main Document.</li>
+</ol>
+<p><strong>Data Source Used:</strong></p>
+<table>
+    <tr><th>Title</th><th>First Name</th><th>Last Name</th><th>City</th></tr>
+    <tr><td>Mr.</td><td>Ram</td><td>Sharma</td><td>Kathmandu</td></tr>
+    <tr><td>Ms.</td><td>Sita</td><td>Rai</td><td>Pokhara</td></tr>
+    <tr><td>Mr.</td><td>Hari</td><td>Thapa</td><td>Lalitpur</td></tr>
+    <tr><td>Mrs.</td><td>Gita</td><td>Karki</td><td>Bhaktapur</td></tr>
+    <tr><td>Mr.</td><td>Shyam</td><td>Lama</td><td>Chitwan</td></tr>
+</table>
+"""
+html_content += add_page("10. Mail Merge - Concept & Data", content_10a)
+
+# Pages 2-6: Merged Letters
+recipients = [
+    ("Mr.", "Ram", "Sharma", "Kathmandu"),
+    ("Ms.", "Sita", "Rai", "Pokhara"),
+    ("Mr.", "Hari", "Thapa", "Lalitpur"),
+    ("Mrs.", "Gita", "Karki", "Bhaktapur"),
+    ("Mr.", "Shyam", "Lama", "Chitwan")
+]
+
+for i, (title, first, last, city) in enumerate(recipients, 1):
+    letter_content = f"""
+    <div style="border: 1px solid #ddd; padding: 40px; margin: 20px;">
+        <p style="text-align: right;">Date: December 15, 2025</p>
+        <p>To,<br>
+        <strong>{title} {first} {last}</strong><br>
+        {city}, Nepal</p>
+        <br>
+        <p><strong>Subject: Invitation to Annual General Meeting</strong></p>
+        <br>
+        <p>Dear {title} {last},</p>
+        <p>We are pleased to invite you to our Annual General Meeting scheduled for January 1st, 2026. Your presence would be highly appreciated.</p>
+        <p>We look forward to seeing you there.</p>
+        <br>
+        <p>Sincerely,<br>
+        Admin Department<br>
+        XYZ Corporation</p>
+    </div>
+    """
+    html_content += add_page(f"10. Mail Merge - Letter {i}", letter_content)
+
+# 11. CV (Existing code follows...)
+
+# 11. CV
+content_11 = """
+<div class="cv-header">
+    <h1>ISHA DAHAL</h1>
+    <p>Kathmandu, Nepal</p>
+    <p>Email: isha.dahal@email.com | Phone: 9800000000</p>
+</div>
+
+<div class="cv-section">
+    <div class="cv-section-title">Objective</div>
+    <p>Dedicated and hardworking Class 11 Management student seeking to leverage academic knowledge and leadership skills in a challenging environment. Eager to learn and contribute to organizational goals.</p>
+</div>
+
+<div class="cv-section">
+    <div class="cv-section-title">Education</div>
+    <p><strong>Class 11 (Management)</strong><br>
+    XYZ Higher Secondary School, Kathmandu<br>
+    <em>Current Student</em></p>
+    <ul>
+        <li>Major Subjects: Accountancy, Economics, Business Studies, Computer Science.</li>
+    </ul>
+    <p><strong>Secondary Education Examination (SEE)</strong><br>
+    ABC School, Kathmandu<br>
+    <em>Graduated: 2024</em></p>
+    <ul>
+        <li>GPA: 3.8/4.0</li>
+    </ul>
+</div>
+
+<div class="cv-section">
+    <div class="cv-section-title">Skills</div>
+    <ul>
+        <li><strong>Computer:</strong> Microsoft Office (Word, Excel, PowerPoint), Basic HTML.</li>
+        <li><strong>Soft Skills:</strong> Leadership, Communication, Time Management, Teamwork.</li>
+        <li><strong>Languages:</strong> English, Nepali, Hindi.</li>
+    </ul>
+</div>
+
+<div class="cv-section">
+    <div class="cv-section-title">Extracurricular Activities</div>
+    <ul>
+        <li>Class Representative (Grade 10)</li>
+        <li>Participant, Inter-School Debate Competition</li>
+        <li>Volunteer, Social Service Club</li>
+    </ul>
+</div>
+
+<div class="cv-section">
+    <div class="cv-section-title">Interests</div>
+    <ul>
+        <li>Reading, Traveling, Social Work, Technology.</li>
+    </ul>
+</div>
+"""
+
+
+html_content += add_page("11. Curriculum Vitae", content_11)
+
+# 12. Calendar
+content_12 = """
+<h2 style="text-align:center; color: darkblue;">DECEMBER 2025</h2>
+<table style="text-align: center; height: 600px;">
+    <tr style="background-color: darkblue; color: white; height: 50px;">
+        <th style="width: 14%;">SUNDAY</th>
+        <th style="width: 14%;">MONDAY</th>
+        <th style="width: 14%;">TUESDAY</th>
+        <th style="width: 14%;">WEDNESDAY</th>
+        <th style="width: 14%;">THURSDAY</th>
+        <th style="width: 14%;">FRIDAY</th>
+        <th style="width: 14%;">SATURDAY</th>
+    </tr>
+    <tr>
+        <td></td>
+        <td>1<br><span style="font-size: 10pt; color: gray;">Meeting</span></td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+        <td>5</td>
+        <td>6<br><span style="font-size: 10pt; color: green;">Weekend</span></td>
+    </tr>
+    <tr>
+        <td>7<br><span style="font-size: 10pt; color: green;">Weekend</span></td>
+        <td>8</td>
+        <td>9</td>
+        <td>10<br><span style="font-size: 10pt; color: red;">Project Due</span></td>
+        <td>11</td>
+        <td>12</td>
+        <td>13</td>
+    </tr>
+    <tr>
+        <td>14</td>
+        <td>15</td>
+        <td>16</td>
+        <td>17</td>
+        <td>18</td>
+        <td>19</td>
+        <td>20</td>
+    </tr>
+    <tr>
+        <td>21</td>
+        <td>22</td>
+        <td>23</td>
+        <td>24<br><span style="font-size: 10pt; color: blue;">Xmas Eve</span></td>
+        <td>25<br><span style="font-size: 10pt; color: red; font-weight: bold;">CHRISTMAS</span></td>
+        <td>26</td>
+        <td>27</td>
+    </tr>
+    <tr>
+        <td>28</td>
+        <td>29</td>
+        <td>30</td>
+        <td>31<br><span style="font-size: 10pt; color: blue;">NY Eve</span></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+"""
+html_content += add_page("12. Calendar", content_12)
+
+# 13. Bullets and Numbering
+content_13 = """
+<h3>Grocery Shopping List (Unordered List)</h3>
+<ul>
+    <li>Fresh Produce
+        <ul>
+            <li>Apples (Red Delicious)</li>
+            <li>Bananas (1 bunch)</li>
+            <li>Spinach (Organic)</li>
+            <li>Carrots</li>
+        </ul>
+    </li>
+    <li>Dairy
+        <ul>
+            <li>Milk (Whole)</li>
+            <li>Cheddar Cheese</li>
+            <li>Yogurt (Vanilla)</li>
+        </ul>
+    </li>
+    <li>Bakery
+        <ul>
+            <li>Whole Wheat Bread</li>
+            <li>Bagels</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>Daily Morning Routine (Ordered List)</h3>
+<ol>
+    <li>Wake up at 7:00 AM</li>
+    <li>Hygiene
+        <ol type="a">
+            <li>Brush teeth</li>
+            <li>Wash face</li>
+            <li>Shower</li>
+        </ol>
+    </li>
+    <li>Breakfast
+        <ol type="a">
+            <li>Prepare coffee</li>
+            <li>Make toast and eggs</li>
+            <li>Eat breakfast</li>
+        </ol>
+    </li>
+    <li>Commute
+        <ol type="a">
+            <li>Walk to bus station</li>
+            <li>Take Bus #42</li>
+            <li>Arrive at office</li>
+        </ol>
+    </li>
+</ol>
+"""
+html_content += add_page("13. Bullets and Numbering", content_13)
+
+# 14. Nested Bullets and Numbering
+content_14 = """
+<h3>Computer System Classification</h3>
+<ul>
+    <li><strong>Hardware Components</strong>
+        <ul>
+            <li>Input Devices
+                <ul>
+                    <li>Keyboard (Mechanical, Membrane)</li>
+                    <li>Mouse (Optical, Laser)</li>
+                    <li>Scanner</li>
+                    <li>Microphone</li>
+                </ul>
+            </li>
+            <li>Output Devices
+                <ul>
+                    <li>Monitor (LCD, LED, OLED)</li>
+                    <li>Printer (Inkjet, Laser)</li>
+                    <li>Speakers</li>
+                </ul>
+            </li>
+            <li>Processing Unit
+                <ul>
+                    <li>CPU (Central Processing Unit)</li>
+                    <li>GPU (Graphics Processing Unit)</li>
+                </ul>
+            </li>
+        </ul>
+    </li>
+    <li><strong>Software Components</strong>
+        <ol>
+            <li>System Software
+                <ol type="A">
+                    <li>Operating Systems
+                        <ul>
+                            <li>Windows</li>
+                            <li>macOS</li>
+                            <li>Linux</li>
+                        </ul>
+                    </li>
+                    <li>Device Drivers</li>
+                    <li>Utilities (Antivirus, Disk Cleanup)</li>
+                </ol>
+            </li>
+            <li>Application Software
+                <ol type="A">
+                    <li>Productivity Tools
+                        <ul>
+                            <li>Word Processors</li>
+                            <li>Spreadsheets</li>
+                            <li>Presentation Software</li>
+                        </ul>
+                    </li>
+                    <li>Web Browsers</li>
+                    <li>Media Players</li>
+                </ol>
+            </li>
+        </ol>
+    </li>
+</ul>
+"""
+html_content += add_page("14. Nested Bullets and Numbering", content_14)
+
+# Close HTML
+html_content += """
+</body>
+</html>
+"""
+
+# Write to file
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"Successfully generated {OUTPUT_FILE}")
